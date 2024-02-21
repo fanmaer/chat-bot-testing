@@ -90,6 +90,7 @@ class BotKit {
         await this.client.sendMessage(chatId, content);
     }
 }
+const timer = ms => new Promise(res => setTimeout(res, ms))
 
 
 main = async function () {
@@ -105,8 +106,11 @@ main = async function () {
 
     const bot = new BotKit(client);
     await bot.init();
-    bot.responseProcessor(0,test1[0].response.testFunction); 
-    await bot.sendMessage(botnum, test1[0].request.sendText); 
+    for (var i = 0; i < 3; i++) {
+        bot.responseProcessor(0,test1[0].response.testFunction);
+        await bot.sendMessage(botnum, test1[0].request.sendText);
+        await timer(10000); // then the created Promise can be awaited
+    }
 
 }
 main().then();
