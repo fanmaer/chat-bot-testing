@@ -2,9 +2,10 @@ import {check, sleep} from 'k6';
 import {Client, LocalAuth} from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 
+const appTestNumber = "573160231524@c.us";
 export const options = {
     stages: [
-        {duration: '10s', target: 20},
+        {duration: '10s', target: 1},
         //{duration: '1m10s', target: 10},
         //{duration: '5s', target: 0},
     ],
@@ -12,11 +13,9 @@ export const options = {
 
 
 class BotKit {
-    client
-    commands = {scopes: {}};
-    static GROUP_MESSAGE = "group-message";
-    static DIRECT_MESSAGE = "direct-message";
-    static DEFAULT = "default";
+    client;
+    processor;
+
 
     constructor(client) {
         this.client = client;
@@ -31,18 +30,18 @@ class BotKit {
             });
 
             this.client.on('ready', async () => {
-                this.commands['ready'] ? this.commands['ready']() : console.log('Ready!');
+                console.log('Ready!');
                 resolve();
             });
 
             this.client.on('message', async msg => {
                 if (msg._data.from.includes('@g.us')) {
                     const from = msg._data.author;
-                    this.runHandler(BotKit.GROUP_MESSAGE, msg, from);
+                    this.runHandler(msg, from);
 
                 } else if (msg._data.from.includes('@c.us')) {
                     const from = msg._data.from;
-                    this.runHandler(BotKit.DIRECT_MESSAGE, msg, from);
+                    this.runHandler(msg, from);
                 } else {
                     console.log('Message from unknown source');
                 }
@@ -58,36 +57,23 @@ class BotKit {
         });
     }
 
-    runHandler(scope, msg, from) {
-        for (const [key, handler] of Object.entries(this.commands.scopes[scope])) {
-            const regExp = new RegExp(key, "ig");
-            if ((regExp && regExp.test && regExp.test(msg.body))
-                || (key && key === msg.body)) {
-                handler(msg, from);
-                break;
-            }
+    runHandler(msg, from) {
+        if (from === appTestNumber) {
+            this.processor(msg, from);
         }
     }
 
-    hears(eventName, scope, listener) {
-        if (!this.commands.scopes[scope]) {
-            this.commands.scopes[scope] = {};
-        }
-        this.commands.scopes[scope][eventName] = listener;
+    hears(listener) {
+        this.processor = listener
     }
 
     async sendMessage(chatId, content) {
         await this.client.sendMessage(chatId, content);
     }
 }
+
 export default async function () {
 
-    const elements = [
-        "chlo",
-        "testing",
-        "inem",
-        "kchup"
-    ];
 
     const client = new Client({
         authStrategy: new LocalAuth(),
@@ -101,17 +87,16 @@ export default async function () {
 
     const bot = new BotKit(client);
     await bot.init();
-    for (const element of elements) {
-        await bot.sendMessage("573007799862@c.us", `🎰 probando con este dato: ${element}`);
-        sleep(30);
-    }
 
-    bot.hears('(?=.*?\\bbot,).*',
-        BotKit.DIRECT_MESSAGE,
+    await bot.sendMessage("573160231524@c.us", "adios");
+    sleep(30);
+
+
+    bot.hears(
         async (msg, from) => {
             console.log(`🎰 message from  AUT (application under test): ${msg}`);
-            check(msg, {'Correct response': (r) => r === 'respuesta correcta'});
-            check(msg, {'Incorrect response': (r) =>  r === 'respuesta incorrecta'});
+            check(msg, {'Correct response': (r) => r === '¡Fue un gusto atenderte 😃! Cualquier novedad no dudes en comunicarte de nuevo conmigo.'});
+            check(msg, {'Incorrect response': (r) => r !== '¡Fue un gusto atenderte 😃! Cualquier novedad no dudes en comunicarte de nuevo conmigo.'});
         });
 }
 
