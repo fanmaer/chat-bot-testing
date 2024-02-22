@@ -2,17 +2,17 @@ const {Client, LocalAuth} = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
 // numero de chatico produccion
-const botnum = "573160231524@c.us";
+const botNum = "573160231524@c.us";
 //json ejemplo, posterior una lista de test
 const test1 = [
     {
-        request:{
-            sendText:"adios",
+        request: {
+            sendText: "adios",
             sendOption: null
         },
-        response:{
+        response: {
             //cada request pude tener multiples mensajes de respuesta, este campo pude ser una lista
-            regexToTest:"(?=.*?\\bCualquier novedad no dudes en comunicarte de nuevo).*",
+
             testFunction: async (msg, from) => {
                 //const regExp = new RegExp(this.regexToTest, "ig");
                 const regExp = new RegExp("(?=.*?\\bCualquier novedad no dudes en comunicarte de nuevo).*", "ig");
@@ -27,13 +27,14 @@ const test1 = [
 ];
 
 class BotKit {
-    client
+    client;
     //commands = {scopes: {}};
-    proccesor
+    processor;
+    sendTime;
+    responseTime;
     static GROUP_MESSAGE = "group-message";
     static DIRECT_MESSAGE = "direct-message";
     static DEFAULT = "default";
-    currentStep = 0;
     constructor(client) {
         this.client = client;
     }
@@ -66,10 +67,11 @@ class BotKit {
 
             this.client.initialize();
 
-            this.client.on('disconnected', (reason) => {
+            this.client.on('disconnected', () => {
                 // Destroy and reinitialize the client when disconnected
                 this.client.destroy();
                 this.client.initialize();
+                reject();
             });
         });
     }
@@ -77,20 +79,26 @@ class BotKit {
     runHandler(scope, msg, from) {
         console.log(msg.body);
         console.log(from);
-        if(from===botnum){
-            this.proccesor(msg, from);            
+        if (from === botNum) {
+            this.responseTime = Date.now();
+            console.log(this.responseTime - this.sendTime);
+            this.processor(msg, from);
         }
 
     }
-    responseProcessor(step, proccesor ){
-        this.proccesor= proccesor
+
+    responseProcessor(step, processor) {
+        this.processor = processor
     }
 
     async sendMessage(chatId, content) {
         await this.client.sendMessage(chatId, content);
     }
 }
-const timer = ms => new Promise(res => setTimeout(res, ms))
+
+const timer = (ms) => {
+    return new Promise(res => setTimeout(res, ms))
+}
 
 
 main = async function () {
@@ -107,8 +115,9 @@ main = async function () {
     const bot = new BotKit(client);
     await bot.init();
     for (var i = 0; i < 3; i++) {
-        bot.responseProcessor(0,test1[0].response.testFunction);
-        await bot.sendMessage(botnum, test1[0].request.sendText);
+        bot.responseProcessor(0, test1[0].response.testFunction);
+        await bot.sendMessage(botNum, test1[0].request.sendText);
+        bot.sendTime = Date.now();
         await timer(10000); // then the created Promise can be awaited
     }
 
