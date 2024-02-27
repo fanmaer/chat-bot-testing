@@ -39,7 +39,10 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    stopWaiting();
+    const from = msg._data.from;
+    if(from===botNum){
+        stopWaiting();
+    }
     if (msg.body === 'ping') {
         msg.reply('pong');
     }
