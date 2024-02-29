@@ -16,7 +16,7 @@ const botNum = "573160231524@c.us";
 let stopWaiting= function(){};
 
 function startWaiting() {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         stopWaiting = resolve;
     });
 }
@@ -41,7 +41,7 @@ client.on('ready', () => {
 client.on('message', msg => {
     const from = msg._data.from;
     if(from===botNum){
-        stopWaiting();
+        stopWaiting(msg.body);
     }
     if (msg.body === 'ping') {
         msg.reply('pong');
@@ -59,6 +59,22 @@ app.get('/', async (req, res) => {
         console.log('llego evento respuesta, tiempo :');
         console.log(Date.now() - sendTime);
         res.send('Hello World!');
+    });
+
+
+})
+
+app.get('/send-text-get-first-answer', async (req, res) => {
+
+    let sendTime = Date.now();
+    let message = req.query.message;
+    client.sendMessage(botNum, message);
+    startWaiting().then((botResponse) => {
+        console.log('palabra enviada: '+message);
+        console.log('respuesta del bot: '+botResponse);
+        console.log('demora de en la respuesta:');
+        console.log(Date.now() - sendTime);
+        res.send(botResponse);
     });
 
 
