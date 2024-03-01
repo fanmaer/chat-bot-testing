@@ -80,6 +80,24 @@ app.get('/send-text-get-first-answer', async (req, res) => {
 
 })
 
+app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
+
+    let sendTime = Date.now();
+    let message = "adios";
+    client.sendMessage(botNum, message);
+    startWaiting().then((botResponse) => {
+        console.log('palabra enviada: '+message);
+        console.log('respuesta del bot: '+botResponse);
+        console.log('demora de en la respuesta:');
+        let time = Date.now() - sendTime;
+        console.log(time);
+        res.type('txt');
+        res.send("time "+time+"\n"+"word "+1);
+    });
+
+
+})
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
