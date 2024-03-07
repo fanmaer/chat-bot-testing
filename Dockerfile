@@ -4,6 +4,12 @@ RUN  apt-get update && apt-get install
 
 RUN apt-get install -y chromium-l10n
 
+RUN apt-get install -y chromium-l10n
+
+RUN apt-get -y install net-tools
+
+RUN apt-get -y install iputils-ping
+
 RUN useradd --user-group --system --create-home --no-log-init pptruser
 
 USER pptruser
