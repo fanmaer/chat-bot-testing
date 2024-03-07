@@ -110,8 +110,8 @@ app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
             console.log('respuesta del bot: ' + msg.body);
             console.log('demora de en la respuesta:');
             let time = Date.now() - sendTime;
-            console.log('_____________________');
             console.log(time);
+            console.log('_____________________');
             res.type('txt');
             res.send("time " + time + "\n" + "word " + 1);
         });
