@@ -12,7 +12,8 @@ const timer = (ms) => {
 // numero de chatico produccion
 const botNum = "573160231524@c.us";
 //json ejemplo, posterior una lista de test
-let botready= false;
+let botReady= false;
+let maxTime = 10000;
 let stopWaiting= function(){};
 let wordInMessage = " ";
 
@@ -23,6 +24,17 @@ function startWaiting(searchWord) {
     wordInMessage = searchWord;
     return new Promise((resolve, reject) => {
         stopWaiting = resolve;
+    });
+}
+
+function startWaitingTimeout(searchWord) {
+    if(! searchWord) {
+        searchWord = " ";
+    }
+    wordInMessage = searchWord;
+    return new Promise((resolve, reject) => {
+        stopWaiting = resolve;
+        setTimeout(stopWaiting,maxTime)
     });
 }
 
@@ -57,7 +69,7 @@ client.on('message', msg => {
 
 client.initialize().then(r => {
     console.log("incializar exitoso");
-    botready = true;
+    botReady = true;
     console.log(r);
 }).catch(r=>{
     console.log("ERROR incializar cliente wapp fallido");
@@ -66,14 +78,14 @@ client.initialize().then(r => {
 
 
 app.get('/', async (req, res) => {
-        res.send('Hello World! staus testboot '+botready );
+        res.send('Hello World! staus testboot '+botReady );
 })
 
 app.get('/send-text-get-first-answer', async (req, res) => {
 
-    if(!botready){
+    if(!botReady){
         res.status(503);
-        res.send("botready "+botready);
+        res.send("botReady "+botReady);
         res.end();
     }else{
 
@@ -94,9 +106,9 @@ app.get('/send-text-get-first-answer', async (req, res) => {
 
 app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
 
-    if(!botready){
+    if(!botReady){
         res.status(503);
-        res.send("botready "+botready);
+        res.send("botReady "+botReady);
         res.end();
     }else {
         let sendTime = Date.now();
@@ -105,15 +117,24 @@ app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
         console.log("fecha hora:");
         console.log(Date());
         client.sendMessage(botNum, message);
-        startWaiting(" ").then((msg) => {
-            console.log('palabra enviada: ' + message);
-            console.log('respuesta del bot: ' + msg.body);
-            console.log('demora de en la respuesta:');
-            let time = Date.now() - sendTime;
-            console.log(time);
-            console.log('_____________________');
-            res.type('txt');
-            res.send("time " + time + "\n" + "word " + 1);
+        startWaitingTimeout(" ").then((msg) => {
+            if(msg) {
+                console.log('palabra enviada: ' + message);
+                console.log('respuesta del bot: ' + msg.body);
+                console.log('demora de en la respuesta:');
+                let time = Date.now() - sendTime;
+                console.log(time);
+                console.log('_____________________');
+                res.type('txt');
+                res.send("time " + time + "\n" + "timeOut " + 0);
+            } else {
+                console.log('palabra enviada: ' + message);
+                console.log('time out bot t>= ' + maxTime);
+                console.log('_____________________');
+                res.type('txt');
+                res.send("time " + maxTime + "\n" + "timeOut " + 1);
+            }
+
         });
 
     }
@@ -121,9 +142,9 @@ app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
 
 app.get('/send-text-get-first-answer-metrics-adios-turismo-adios', async (req, res) => {
 
-    if(!botready){
+    if(!botReady){
         res.status(503);
-        res.send("botready "+botready);
+        res.send("botready "+botReady);
         res.end();
     }else {
 
