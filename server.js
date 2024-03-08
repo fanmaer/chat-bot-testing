@@ -11,9 +11,10 @@ const timer = (ms) => {
 
 // numero de chatico produccion
 const botNum = "573160231524@c.us";
-//json ejemplo, posterior una lista de test
+// esta listo el waap-web para enviar mensajes
 let botReady= false;
-let maxTime = 10000;
+// 30 segundos espera maxima
+let maxTime = 30000;
 let stopWaiting= function(){};
 let wordInMessage = " ";
 
@@ -33,6 +34,7 @@ function startWaitingTimeout(searchWord) {
     }
     wordInMessage = searchWord;
     return new Promise((resolve, reject) => {
+        // la promesa se resuelve por ejecucion de stopWaiting por "on message" o por "time out"
         stopWaiting = resolve;
         setTimeout(stopWaiting,maxTime)
     });
@@ -72,13 +74,13 @@ client.initialize().then(r => {
     botReady = true;
     console.log(r);
 }).catch(r=>{
-    console.log("ERROR incializar cliente wapp fallido");
+    console.log("ERROR incializar cliente waap fallido");
     console.log(r);
 });
 
 
 app.get('/', async (req, res) => {
-        res.send('Hello World! staus testboot '+botReady );
+        res.send('Hello World! botReady =  '+botReady );
 })
 
 app.get('/send-text-get-first-answer', async (req, res) => {
@@ -144,7 +146,7 @@ app.get('/send-text-get-first-answer-metrics-adios-turismo-adios', async (req, r
 
     if(!botReady){
         res.status(503);
-        res.send("botready "+botReady);
+        res.send("botReady "+botReady);
         res.end();
     }else {
 
