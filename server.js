@@ -1,5 +1,23 @@
 const {Client, LocalAuth} = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const winston = require('winston');
+let logger;
+logger = winston.createLogger({
+    transports: [
+        new winston.transports.File({
+            filename: 'log/combined.log',
+            timestamp: true,
+            maxsize: 5120000,
+            maxFiles: 20,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: "YYYY-MM-DD HH:mm:ss",
+                }),
+                winston.format.json()
+            ),
+        })
+    ]
+});
 
 const express = require('express')
 const app = express()
@@ -59,8 +77,10 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
+    logger.info(msg,{tag:'on_message_all',desc:'llega mensaje'});
     const from = msg._data.from;
     if(from===botNum && msg.body.includes(wordInMessage)){
+        logger.info(msg,{tag:'on_message_fom_chatico',desc:'llega mensaje de chatico'});
         stopWaiting(msg);
     }
     if (msg.body === 'ping') {
@@ -68,13 +88,20 @@ client.on('message', msg => {
     }
 })
 
+client.on('message_ack', (msg, ack) => {
+    logger.info(msg,{tag:'on_message_ack',desc:'ack mensaje',ack:ack});
+})
+
 
 client.initialize().then(r => {
     console.log("incializar exitoso");
+    logger.info("whatsapp-web.js inicializa exitoso")
     botReady = true;
     console.log(r);
 }).catch(r=>{
     console.log("ERROR incializar cliente waap fallido");
+    logger.info("whatsapp-web.js inicializa fallido")
+    logger.info(r);
     console.log(r);
 });
 
@@ -118,7 +145,11 @@ app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
         console.log("nuevo request de mensaje ---------------------------");
         console.log("fecha hora:");
         console.log(Date());
-        client.sendMessage(botNum, message);
+        client.sendMessage(botNum, message).then((msg) => {
+            logger.info(msg,{tag:'sendMessage',desc:'se cumple promesa de envio de mensaje'});
+        }).catch(reason => {
+            logger.error(reason,{tag:'sendMessage_error',desc:'no se pudo enviar mensaje'});
+        });
         startWaitingTimeout(" ").then((msg) => {
             if(msg) {
                 console.log('palabra enviada: ' + message);
@@ -127,12 +158,14 @@ app.get('/send-text-get-first-answer-metrics-adios', async (req, res) => {
                 let time = Date.now() - sendTime;
                 console.log(time);
                 console.log('_____________________');
+                logger.info(msg,{tag:'on_message_less30sg',desc:'llega mensaje antes de 30 segudos de espera'});
                 res.type('txt');
                 res.send("time " + time + "\n" + "timeOut " + 0);
             } else {
                 console.log('palabra enviada: ' + message);
                 console.log('time out bot t>= ' + maxTime);
                 console.log('_____________________');
+                logger.warn('timeout',{tag:'on_message_more30sg',desc:'no llega mensaje, timeout 30 seg'});
                 res.type('txt');
                 res.send("time " + maxTime + "\n" + "timeOut " + 1);
             }

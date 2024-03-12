@@ -4,3 +4,4 @@
 .wwebjs_cache
 node_modules
 .wwebjs_auth
+log/*.log
