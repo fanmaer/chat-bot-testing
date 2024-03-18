@@ -32,7 +32,7 @@ const botNum = "573160231524@c.us";
 // esta listo el waap-web para enviar mensajes
 let botReady= false;
 // 30 segundos espera maxima
-let maxTime = 30000;
+let maxTime = 60000;
 let stopWaiting= function(){};
 let wordInMessage = " ";
 
