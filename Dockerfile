@@ -20,17 +20,16 @@ RUN chmod -R 777 /home/pptruser/node/app
 
 WORKDIR /home/pptruser/node/app
 
-COPY --chown=pptruser package*.json ./
 
 RUN chmod -R 777 /home/pptruser/node/app
 
 USER pptruser
 
-RUN npm install
 
 RUN chmod -R 777 /home/pptruser/node/app
 
 COPY --chown=pptruser:pptruser . .
+
 
 EXPOSE 3000
 
