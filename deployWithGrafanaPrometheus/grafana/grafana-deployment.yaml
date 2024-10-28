@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+   matchLabels:
+     app: grafana
+     component: server 
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+        component: server
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.4.0
+          imagePullPolicy: Always
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "grafana"
+            - name: GF_DATABASE_TYPE
+              value: postgres
+            - name: GF_DATABASE_HOST
+              value: dbgab-pgqsl.postgres.database.azure.com:5432
+            - name: GF_DATABASE_NAME
+              value: grafana
+            - name: GF_DATABASE_USER
+              value: gab_user@pgdb-gab-dev-qa
+            - name: GF_DATABASE_PASSWORD
+              value: Tkl@t!jMRP#q7^KX%FQ7 
+            - name: GF_DATABASE_SSL_MODE
+              value: require               
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: grafana-storage-vol
+              mountPath: /var/lib/grafana 
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: grafana-storage-vol
+          emptyDir: {}      
+#        - name: grafana-storage-vol
+#          persistentVolumeClaim:
+#            claimName: grafana-pvc

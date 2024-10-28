@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bottest
+spec:
+  selector:
+    app: chatbot-test
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-test-deployment
+  labels:
+    app: chatbot-test
+spec:
+  selector:
+    matchLabels:
+      app: chatbot-test
+  template:
+    metadata:
+      labels:
+        app: chatbot-test
+    spec:
+      containers:
+      - name: chatbot-test
+        image: acrsgcontainers.azurecr.io/gab/test/bottest:lastest
+        ports:
+        - containerPort: 3000

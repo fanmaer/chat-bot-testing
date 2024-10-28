@@ -1,0 +1,19 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: grafana-storage
+provisioner: kubernetes.io/azure-file
+parameters:
+  skuName: Standard_LRS
+#  storageAccount: wso2isfileshare
+reclaimPolicy: Retain
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=802
+  - gid=802
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+allowVolumeExpansion: true
+volumeBindingMode: Immediate

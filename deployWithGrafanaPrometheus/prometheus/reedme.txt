@@ -1,0 +1,9 @@
+el archivo prometheus-config.ymal se genera a partir de prometheus.ymal con el comando
+
+kubectl create configmap prometheus-config --from-file=prometheus.yml --dry-run=client -o yaml > prometheus-config.ymal
+
+para desplegar en kubernetes de debe apply los archivos
+
+prometheus-config.yaml
+y
+prometheus-deployment.yaml
