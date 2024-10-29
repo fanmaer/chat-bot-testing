@@ -27,6 +27,6 @@ spec:
     spec:
       containers:
       - name: chatbot-test
-        image: acrsgcontainers.azurecr.io/gab/test/bottest:lastest
+        image: acrsgcontainers.azurecr.io/gab/test/bottest2
         ports:
         - containerPort: 3000
