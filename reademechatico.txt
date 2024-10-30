@@ -1,0 +1,36 @@
+para el despliegue en kubernetes o con docker compose se requieren 3 imágenes
+
+bottest
+prometheus
+grafana
+
+la imagen bottest se genera en la carpeta de este archivo
+
+docker build .
+queda en el repo local de imagenes sin tag (para uso con docker compose)
+
+docker build -t acrsgcontainers.azurecr.io/gab/test/bottest .
+queda en el repo local de imágenes con el tag para poder posteriormente hacer push al repo de imágenes que toma kubernetes con el siguiente comando
+docker push acrsgcontainers.azurecr.io/gab/test/bottest .
+
+las imágenes para prometheus y grafana se toman de los repos públicos
+
+en la carpeta deployWithGrafanaPrometheus estan las carpetas con configuraciones para prometheus y grafana, y también los archivos yaml, para despliegue en kubernetes
+
+Para el despliegue con docker compose, en esta misma carpeta esta el archivo docker-compose.yml que despliega los tres componentes
+bottest-> toma la imagen que previamente debe estar en el repo local de imagenes de docker
+prometheus-> toma la imagen del repo, y las configuraciones las toma de la carpeta prometheus
+grafana-> toma la imagen del repo y configuraciones de la carpeta grafana
+
+Para el despliegue en kubernetes
+
+En kubernetes se debe realizar el apply de los archivos yaml de cada componente
+
+bottest -> archivo chatbot-test.yaml    kubectl apply -f chatbot-test.yaml -n <namespace>
+		para loguearse en wapp se debe ingresar al log del pod que se creó con el despliegue, y escanear el código qr con wapp desde un celular
+
+prometheus -> archivo prometheus-config.yaml y prometheus-deployment.yaml, en la carpeta deployWithGrafanaPrometheus/prometheuspara generar el archivo prometheus-config.yaml revisar el redme en esta misma carpeta carpeta
+			 kubectl apply -f prometheus-config.yaml -n <namespace>   y   kubectl apply -f prometheus-deployment.yaml -n <namespace>
+
+grafana -> archivo grafana-deployment.yaml   kubectl apply -f grafana-deployment.yaml -n <namespace>
+			Esta configuración de grafana está configurada para conectarse a la BD postgres y persistir la configuración de alertas y envío de notificaciones de grafana
