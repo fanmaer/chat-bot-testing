@@ -34,7 +34,7 @@ spec:
       - name: prometheus
         image: prom/prometheus
         args:
-          - '--storage.tsdb.retention=24h'
+          - '--storage.tsdb.retention.time=24h'
           - '--config.file=/etc/prometheus/prometheus.yml'
         ports:
         - containerPort: 9090

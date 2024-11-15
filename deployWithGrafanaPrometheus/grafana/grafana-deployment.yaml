@@ -55,8 +55,8 @@ spec:
               mountPath: /var/lib/grafana 
       terminationGracePeriodSeconds: 300
       volumes:
-        - name: grafana-storage-vol
-          emptyDir: {}      
 #        - name: grafana-storage-vol
-#          persistentVolumeClaim:
-#            claimName: grafana-pvc
+#          emptyDir: {}      
+        - name: grafana-storage-vol
+          persistentVolumeClaim:
+            claimName: grafana-pvc

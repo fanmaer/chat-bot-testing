@@ -1,0 +1,2 @@
+en grafana-deployment.yaml esta al despleigue para kubernetes, este despliegue se concecta a la BD de pruebas de chatico y tambien hace uso de un volumen 
+el archivo grafana-storage-volume-claim.yaml tiene el cliam a un volumen del tipo utilizado en le IS

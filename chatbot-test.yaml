@@ -30,3 +30,11 @@ spec:
         image: acrsgcontainers.azurecr.io/gab/test/bottest2
         ports:
         - containerPort: 3000
+#        volumeMounts:
+#          - name: chattest-storage-vol
+#            mountPath: /home/pptruser/node/app/.wwebjs_auth
+#      volumes:    
+#        - name: chattest-storage-vol
+#          persistentVolumeClaim:
+#            claimName: chattest-pvc
+            
